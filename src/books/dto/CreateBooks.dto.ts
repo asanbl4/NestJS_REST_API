@@ -1,4 +1,4 @@
-import { IsNotEmpty, Length } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, Length } from "class-validator";
 
 export class CreateBooksDto {
     @IsNotEmpty({message: "Book should have a title"})
@@ -10,6 +10,7 @@ export class CreateBooksDto {
     description: string;
 
     @IsNotEmpty({message: "Book should have a price"})
+    @IsNumber()
     price: number;
 
     @IsNotEmpty({message: "Book should have an author"})

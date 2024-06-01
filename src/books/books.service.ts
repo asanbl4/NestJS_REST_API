@@ -2,8 +2,10 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BooksRepository } from "./books.repository";
 import { CreateBooksDto } from "./dto/CreateBooks.dto";
-import { instanceToPlain } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Book } from "./books.entity";
+import { UpdateBooksDto } from "./dto/UpdateBooks.dto";
+import { extname, join } from "path";
 
 
 @Injectable()
@@ -15,18 +17,28 @@ export class BooksService {
         return await this.booksRepository.save(book);
     }
 
-    async getAllBooks(): Promise<Book[]> {
-        return await this.booksRepository.find();
+    async getAllBooks() {
+        const books = await this.booksRepository.find();
+        return books.map(book => ({
+            ...book,
+            coverImageUrl: book.coverImageUrl ? `http://localhost:3000/uploads/${book.coverImageUrl}` : null,
+          }));
     }
 
     async getOneBook(id: number): Promise<Book> {
-        return this.findBook(id);
+        const book = await this.findBook(id);
+        if (book.coverImageUrl) {
+            book.coverImageUrl = 'http://localhost:3000/uploads/${book.coverImageUrl}';
+        }
+        return book;
     }
 
-    async updateBook(id: number, updateBooksDto: CreateBooksDto) {
+    async updateBook(id: number, updateBooksDto: UpdateBooksDto) {
         const book = await this.findBook(id);
-        Object.assign(book, updateBooksDto);
-        return await this.booksRepository.save(book);
+
+        const updatedBook = plainToInstance(Book, { ...updateBooksDto, id: book.id });
+
+        return await this.booksRepository.save(updatedBook);
     }
 
     async deleteBook(id: number) {
@@ -42,4 +54,9 @@ export class BooksService {
         return book;
     }
 
+    async addImageToBook(id: number, fileName: string) {
+        const book = await this.findBook(id);
+        book.coverImageUrl = fileName;
+        return await this.booksRepository.save(book);
+    }
 }

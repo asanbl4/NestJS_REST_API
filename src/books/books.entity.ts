@@ -26,4 +26,10 @@ export class Book extends BaseEntity {
     })
     author: 'string'
 
+    @Column({
+        type: 'varchar',
+        nullable: true
+    })
+    coverImageUrl: string;
+
 }
