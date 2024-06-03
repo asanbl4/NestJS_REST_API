@@ -16,9 +16,7 @@ import { AuthGuard } from './auth.guard';
       signOptions: {expiresIn: '60s'}
     })
   ],
-  providers: [
-    AuthService,
-  ],
+  providers: [AuthService],
   controllers: [AuthController],
   exports: [AuthService]
 })

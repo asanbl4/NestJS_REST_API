@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles/roles.guard';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [BooksModule, UsersModule, TypeOrmModule.forRoot(typeOrmConfig), TypeOrmModule.forFeature([User]), AuthModule],
@@ -17,8 +18,12 @@ import { UsersModule } from './users/users.module';
   providers: [
     AppService, 
     {
-    provide: APP_GUARD,
-    useClass: RolesGuard,
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     }
 ],
 })

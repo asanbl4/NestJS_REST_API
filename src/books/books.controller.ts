@@ -20,10 +20,11 @@ import { RolesGuard } from '../roles/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName } from 'src/utils/editFile';
+import { Public } from 'src/auth/auth.decorator';
 
 @Controller('books')
 @Roles(Role.Moderator)
-@UseGuards(AuthGuard) // Apply guards globally to the controller
+@UseGuards(AuthGuard, RolesGuard) // Apply guards globally to the controller
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
