@@ -53,10 +53,9 @@ export class BooksService {
         }
         return book;
     }
-
-    async addImageToBook(id: number, fileName: string) {
-        const book = await this.findBook(id);
+    
+    private async addImageToBook(book: Book, fileName: string): Promise<Book> {
         book.coverImageUrl = fileName;
-        return await this.booksRepository.save(book);
+        return book;
     }
 }

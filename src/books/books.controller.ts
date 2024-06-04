@@ -20,7 +20,7 @@ import { RolesGuard } from '../roles/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName } from 'src/utils/editFile';
-import { Public } from 'src/auth/auth.decorator';
+
 
 @Controller('books')
 @Roles(Role.Moderator)
@@ -35,9 +35,17 @@ export class BooksController {
   }
 
   @Post('/create')
+  @UseInterceptors(
+    FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads',
+            filename: editFileName,
+        })
+    }),
+  )
   @Roles(Role.User)
-  @UseInterceptors(FileInterceptor('file'))
   async createBook(@Body() bookData: CreateBooksDto, @UploadedFile() file: Express.Multer.File) {
+    bookData.coverImageUrl = file.filename;
     return await this.booksService.createNewBook(bookData);
   }
 
@@ -49,8 +57,17 @@ export class BooksController {
   }
 
   @Patch(':id')
-  async updateBook(@Body() bookData: UpdateBooksDto, @Param('id') id: string) {
+  @UseInterceptors(
+    FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads',
+            filename: editFileName,
+        })
+    }),
+  )
+  async updateBook(@Body() bookData: UpdateBooksDto, @Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
     const parsedId = parseInt(id, 10);
+    bookData.coverImageUrl = file.filename;
     return await this.booksService.updateBook(parsedId, bookData);
   }
 
@@ -60,21 +77,21 @@ export class BooksController {
     return await this.booksService.deleteBook(parsedId);
   }
   
-  @Post('upload/:id')
-  @Roles(Role.User)
-  @UseInterceptors(
-    FileInterceptor('file', {
-        storage: diskStorage({
-            destination: './uploads',
-            filename: editFileName,
-        })
-    }),
-  )
-  async uploadFile(
-    @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File
-    ) {
-        const parsedId = parseInt(id, 10);
-        return await this.booksService.addImageToBook(parsedId, file.filename);
-    }
+  // @Post('upload/:id')
+  // @Roles(Role.User)
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //       storage: diskStorage({
+  //           destination: './uploads',
+  //           filename: editFileName,
+  //       })
+  //   }),
+  // )
+  // async uploadFile(
+  //   @Param('id') id: string,
+  //   @UploadedFile() file: Express.Multer.File
+  //   ) {
+  //       const parsedId = parseInt(id, 10);
+  //       return await this.booksService.addImageToBook(parsedId, file.filename);
+  //   }
 }

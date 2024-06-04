@@ -32,4 +32,9 @@ export class Book extends BaseEntity {
     })
     coverImageUrl: string;
 
+    @Column({
+        type: 'int',
+        nullable:true
+    })
+    year: number;
 }

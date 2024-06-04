@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsOptional, Length } from "class-validator";
 
 export class CreateBooksDto {
@@ -10,9 +11,16 @@ export class CreateBooksDto {
     description: string;
 
     @IsNotEmpty({message: "Book should have a price"})
-    @IsNumber()
+    @Type(() => Number)
     price: number;
 
     @IsNotEmpty({message: "Book should have an author"})
     author: string;
+
+    @IsOptional()
+    coverImageUrl?: string;
+    
+    @IsNotEmpty()
+    year: number;
+
 }

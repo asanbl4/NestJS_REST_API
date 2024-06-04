@@ -22,5 +22,8 @@ export class UpdateBooksDto {
     author?: string;
 
     @IsOptional()
-    coverImageUrl: string;
+    coverImageUrl?: string;
+    
+    @IsOptional()
+    year?: number;
 }
