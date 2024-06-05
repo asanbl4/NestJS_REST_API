@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBooksDto } from './dto/CreateBooks.dto';
@@ -20,6 +21,7 @@ import { RolesGuard } from '../roles/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName } from 'src/utils/editFile';
+import { Book } from './books.entity';
 
 
 @Controller('books')
@@ -49,6 +51,17 @@ export class BooksController {
     return await this.booksService.createNewBook(bookData);
   }
 
+  @Get('search')
+  @Roles(Role.User)
+  async searchBook(
+    @Query('title') title?: string,
+    @Query('author') author?: string,
+    @Query('year') year?: number,
+    @Query('description') description?: string,
+  ): Promise<Book[]> {
+    return this.booksService.searchBook(title, description, author, year);
+  }
+
   @Get(':id')
   @Roles(Role.User)
   async getBook(@Param('id') id: string) {
@@ -76,22 +89,6 @@ export class BooksController {
     const parsedId = parseInt(id, 10);
     return await this.booksService.deleteBook(parsedId);
   }
-  
-  // @Post('upload/:id')
-  // @Roles(Role.User)
-  // @UseInterceptors(
-  //   FileInterceptor('file', {
-  //       storage: diskStorage({
-  //           destination: './uploads',
-  //           filename: editFileName,
-  //       })
-  //   }),
-  // )
-  // async uploadFile(
-  //   @Param('id') id: string,
-  //   @UploadedFile() file: Express.Multer.File
-  //   ) {
-  //       const parsedId = parseInt(id, 10);
-  //       return await this.booksService.addImageToBook(parsedId, file.filename);
-  //   }
+
+
 }

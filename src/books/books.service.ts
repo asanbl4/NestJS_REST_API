@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BooksRepository } from "./books.repository";
 import { CreateBooksDto } from "./dto/CreateBooks.dto";
@@ -28,7 +28,7 @@ export class BooksService {
     async getOneBook(id: number): Promise<Book> {
         const book = await this.findBook(id);
         if (book.coverImageUrl) {
-            book.coverImageUrl = 'http://localhost:3000/uploads/${book.coverImageUrl}';
+            book.coverImageUrl = `http://localhost:3000/uploads/${book.coverImageUrl}`;
         }
         return book;
     }
@@ -58,4 +58,22 @@ export class BooksService {
         book.coverImageUrl = fileName;
         return book;
     }
+
+    async searchBook(title?: string, description?: string, author?: string, year?: number) {
+        const query = this.booksRepository.createQueryBuilder('books')
+
+        if (title) {
+            query.andWhere('books.title ILIKE :title', { title: `%${title}%` });
+        }
+        if (description) {
+            query.andWhere('books.description ILIKE :description', { description: `%${description}%` });
+        }
+        if (author) {
+            query.andWhere('books.author ILIKE :author', { author: `%${author}%` });
+        }
+        if (year) {
+            query.andWhere('books.year = :year', { year });
+        }
+        return query.getMany()
+     }
 }
