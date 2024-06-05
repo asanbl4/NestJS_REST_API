@@ -16,16 +16,14 @@ export class BooksService {
         ) {}
 
     async createNewBook(createBooksDto: CreateBooksDto) {
+        createBooksDto.coverImageUrl = `http://localhost:3000/uploads/${createBooksDto.coverImageUrl}`
         const book = instanceToPlain(createBooksDto);
         return await this.booksRepository.save(book);
     }
 
     async getAllBooks() {
         const books = await this.booksRepository.find();
-        return books.map(book => ({
-            ...book,
-            coverImageUrl: book.coverImageUrl ? `http://localhost:3000/uploads/${book.coverImageUrl}` : null,
-          }));
+        return books;
     }
 
     async getOneBook(id: number): Promise<string> {
@@ -39,7 +37,7 @@ export class BooksService {
         const qrCodeDataUrl = await this.qrcodeService.generateQrData(data);
         return `
         <div>
-            <img src="http://localhost:3000/uploads/${book.coverImageUrl}" alt="Book cover" />
+            <img src="${book.coverImageUrl}" alt="Book cover" />
             <br/>
             <img src="${qrCodeDataUrl}" alt="QR Code" />
         </div>
