@@ -31,7 +31,7 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  @Roles(Role.User)
+  @Roles(Role.Moderator, Role.User)
   getAllBooks() {
     return this.booksService.getAllBooks();
   }
@@ -45,14 +45,14 @@ export class BooksController {
         })
     }),
   )
-  @Roles(Role.User)
+  @Roles(Role.Moderator, Role.User)
   async createBook(@Body() bookData: CreateBooksDto, @UploadedFile() file: Express.Multer.File) {
     bookData.coverImageUrl = file.filename;
     return await this.booksService.createNewBook(bookData);
   }
 
   @Get('search')
-  @Roles(Role.User)
+  @Roles(Role.Moderator, Role.User)
   async searchBook(
     @Query('title') title?: string,
     @Query('author') author?: string,
@@ -63,10 +63,10 @@ export class BooksController {
   }
 
   @Get(':id')
-  @Roles(Role.User)
+  @Roles(Role.Moderator, Role.User)
   async getBook(@Param('id') id: string) {
     const parsedId = parseInt(id, 10);
-    return await this.booksService.getOneBook(parsedId);
+    return await this.booksService.getOneBook(parsedId)
   }
 
   @Patch(':id')

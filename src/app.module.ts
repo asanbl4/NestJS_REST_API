@@ -10,9 +10,10 @@ import { RolesGuard } from './roles/roles.guard';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AuthGuard } from './auth/auth.guard';
+import { QrcodeModule } from './qrcode/qrcode.module';
 
 @Module({
-  imports: [BooksModule, UsersModule, TypeOrmModule.forRoot(typeOrmConfig), TypeOrmModule.forFeature([User]), AuthModule],
+  imports: [BooksModule, UsersModule, TypeOrmModule.forRoot(typeOrmConfig), TypeOrmModule.forFeature([User]), AuthModule, QrcodeModule],
   controllers: [AppController],
   providers: [
     AppService, 

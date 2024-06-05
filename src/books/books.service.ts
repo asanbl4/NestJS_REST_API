@@ -5,12 +5,15 @@ import { CreateBooksDto } from "./dto/CreateBooks.dto";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Book } from "./books.entity";
 import { UpdateBooksDto } from "./dto/UpdateBooks.dto";
-import { extname, join } from "path";
+import { QrcodeService } from "src/qrcode/qrcode.service";
 
 
 @Injectable()
 export class BooksService {
-    constructor(@InjectRepository(BooksRepository) private booksRepository: BooksRepository) {}
+    constructor(
+        @InjectRepository(BooksRepository) private booksRepository: BooksRepository,
+        private readonly qrcodeService: QrcodeService
+        ) {}
 
     async createNewBook(createBooksDto: CreateBooksDto) {
         const book = instanceToPlain(createBooksDto);
@@ -25,12 +28,22 @@ export class BooksService {
           }));
     }
 
-    async getOneBook(id: number): Promise<Book> {
+    async getOneBook(id: number): Promise<string> {
         const book = await this.findBook(id);
-        if (book.coverImageUrl) {
-            book.coverImageUrl = `http://localhost:3000/uploads/${book.coverImageUrl}`;
-        }
-        return book;
+        const data = `
+            title:${book.title}\n
+            author:${book.author}\n
+            year:${book.year}\n
+            description:${book.description.substring(0, 31)}...
+        `
+        const qrCodeDataUrl = await this.qrcodeService.generateQrData(data);
+        return `
+        <div>
+            <img src="http://localhost:3000/uploads/${book.coverImageUrl}" alt="Book cover" />
+            <br/>
+            <img src="${qrCodeDataUrl}" alt="QR Code" />
+        </div>
+        `
     }
 
     async updateBook(id: number, updateBooksDto: UpdateBooksDto) {
@@ -46,16 +59,11 @@ export class BooksService {
         return await this.booksRepository.remove(book);
     }
 
-    private async findBook(id: number): Promise<Book> {
+    async findBook(id: number): Promise<Book> {
         const book = await this.booksRepository.findOneBy({id: id});
         if (!book) {
             throw new NotFoundException(`Book with id: ${id} not found in database`);
         }
-        return book;
-    }
-    
-    private async addImageToBook(book: Book, fileName: string): Promise<Book> {
-        book.coverImageUrl = fileName;
         return book;
     }
 
