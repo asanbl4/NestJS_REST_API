@@ -80,7 +80,9 @@ export class BooksController {
   )
   async updateBook(@Body() bookData: UpdateBooksDto, @Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
     const parsedId = parseInt(id, 10);
-    bookData.coverImageUrl = file.filename;
+    if (file) {
+      bookData.coverImageUrl = file.filename;
+    }
     return await this.booksService.updateBook(parsedId, bookData);
   }
 
