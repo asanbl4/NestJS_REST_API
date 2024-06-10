@@ -22,7 +22,11 @@ export class BooksService {
     }
 
     async getAllBooks() {
-        const books = await this.booksRepository.find();
+        const books = await this.booksRepository.find({
+            order: {
+                id: "ASC",
+            }
+        });
         return books;
     }
 
@@ -46,10 +50,10 @@ export class BooksService {
 
     async updateBook(id: number, updateBooksDto: UpdateBooksDto) {
         const book = await this.findBook(id);
-
-        const updatedBook = plainToInstance(Book, { ...updateBooksDto, id: book.id });
-
-        return await this.booksRepository.save(updatedBook);
+        // preventing bugs when id is provided as param
+        updateBooksDto.id = id;
+        Object.assign(book, updateBooksDto);
+        return await this.booksRepository.save(book);
     }
 
     async deleteBook(id: number) {
