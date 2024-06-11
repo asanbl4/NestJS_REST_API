@@ -2,15 +2,18 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BooksRepository } from "./books.repository";
 import { CreateBooksDto } from "./dto/CreateBooks.dto";
-import { instanceToPlain, plainToInstance } from "class-transformer";
+import { instanceToPlain, } from "class-transformer";
 import { Book } from "./books.entity";
 import { UpdateBooksDto } from "./dto/UpdateBooks.dto";
 import { QrcodeService } from "src/qrcode/qrcode.service";
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
 
 
 @Injectable()
 export class BooksService {
     constructor(
+        @InjectQueue('book') private bookQueue: Queue,
         @InjectRepository(BooksRepository) private booksRepository: BooksRepository,
         private readonly qrcodeService: QrcodeService
         ) {}
@@ -86,4 +89,12 @@ export class BooksService {
         }
         return query.getMany()
      }
+
+    async addBooksBulk(createBooksDtos: CreateBooksDto[]) {
+        await this.bookQueue.add('addBooksBulk', createBooksDtos);
+    }
+
+    async addJob(data: any) {
+        this.bookQueue.add({data});
+    }
 }

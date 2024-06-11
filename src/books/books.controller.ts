@@ -36,7 +36,7 @@ export class BooksController {
     return this.booksService.getAllBooks();
   }
 
-  @Post('/create')
+  @Post('create')
   @UseInterceptors(
     FileInterceptor('file', {
         storage: diskStorage({
@@ -49,6 +49,12 @@ export class BooksController {
   async createBook(@Body() bookData: CreateBooksDto, @UploadedFile() file: Express.Multer.File) {
     bookData.coverImageUrl = file.filename;
     return await this.booksService.createNewBook(bookData);
+  }
+
+  @Post('/bulk-upload')
+  @Roles(Role.Moderator)
+  async bulkUploadBooks(@Body() createBooksDtos: CreateBooksDto[]) {
+    return await this.booksService.addBooksBulk(createBooksDtos);
   }
 
   @Get('search')
